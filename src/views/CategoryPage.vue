@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import ListingCard from '../components/ListingCard.vue';
+import ListingCard from '../views/ListingCard.vue';
 import { supabase } from '../supabase';
 
 export default {
