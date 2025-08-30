@@ -1,0 +1,24 @@
+{
+  "name": "wbitc-website",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mapbox/mapbox-sdk": "^0.16.1",
+    "@supabase/supabase-js": "^2.49.8",
+    "mapbox-gl": "^3.12.0",
+    "swiper": "^11.2.8",
+    "vue": "^3.5.20",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "rollup": "^4.48.1",
+    "vite": "^7.1.3"
+  }
+}
