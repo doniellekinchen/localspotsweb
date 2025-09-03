@@ -210,14 +210,17 @@ export default {
 </script>
 
 <style scoped>
+/* iOS text sizing quirks */
+html { -webkit-text-size-adjust: 100%; }
+
 /* ===== Theme tokens (match site) ===== */
 :root {
   --bg1: #FFF9F6;
   --bg2: #FFEFE7;
   --text: #333;
   --muted: #666;
-  --accent: #C8553D;    /* Jasper */
-  --accent-2: #F28F3B;  /* Tangerine */
+  --accent: #C8553D;
+  --accent-2: #F28F3B;
   --cyan: #588B8B;
   --apricot: #FFD5C2;
   --chip-bg: #FFF1EC;
@@ -269,8 +272,8 @@ export default {
   z-index: 1;
 }
 .title {
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   gap: .6rem;
   font-size: clamp(2rem, 5vw, 3rem);
   color: var(--accent);
@@ -316,35 +319,6 @@ export default {
 .step-title {
   font-size: 1.4rem; color: var(--accent); margin: .25rem 0 .75rem;
 }
-
-/* location input and autocomplete */
-.input-wrap { position: relative; }
-.input {
-  width: 100%;
-  padding: .9rem 1rem;
-  border-radius: 12px;
-  border: 1px solid #e8e1de;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
-  font-size: 1rem;
-}
-.autocomplete-list {
-  list-style: none;
-  margin: .4rem 0 0;
-  padding: .25rem;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.08);
-  max-height: 220px;
-  overflow-y: auto;
-}
-.autocomplete-item {
-  padding: .6rem .7rem;
-  cursor: pointer;
-  border-radius: 8px;
-}
-.autocomplete-item:hover { background: #FFF5F0; }
 
 /* option chips */
 .options-wrap {
@@ -401,16 +375,16 @@ export default {
 .fade-enter-active, .fade-leave-active { transition: opacity .28s ease, transform .28s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
 
-/* Special layout for first step */
+/* ===== LOCATION ROW (the part that was clipping) ===== */
 .location-step { gap: .75rem; }
 
-/* Input + button inline */
+/* Make input + button a reliable grid so they can’t overlap */
 .location-input-wrap {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr max-content; /* input grows, button keeps size */
   align-items: center;
   gap: .6rem;
 }
-
 .location-input {
   flex: 1;
   padding: .8rem 1rem;
@@ -418,110 +392,80 @@ export default {
   border: 1px solid #e8e1de;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,.04);
-  font-size: 1rem;
+  font-size: 16px;           /* 16px prevents iOS auto-zoom */
 }
-
 .location-step .btn {
   white-space: nowrap;
   height: 100%;
   padding: .8rem 1.1rem;
+  min-width: 100px;          /* predictable size so it won’t get squeezed */
+  max-width: 124px;
 }
 
-/* Dropdown stretches under input */
+/* Suggestions dropdown */
 .autocomplete-list {
+  list-style: none;
   margin-top: .5rem;
   max-width: 100%;
+  padding: .25rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+  max-height: 45vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
-
-
-/* responsive */
-@media (max-width: 640px) {
-  .quiz-card { padding: 1rem; }
-  .actions { justify-content: stretch; }
-  .btn, .btn-accent { flex: 1; text-align: center; }
+.autocomplete-item {
+  padding: .6rem .7rem;
+  cursor: pointer;
+  border-radius: 8px;
 }
-/* ===== Mobile polish for VibeMatch Quiz ===== */
-/* --- Mobile polish (iPhone widths, < 430px) --- */
+.autocomplete-item:hover { background: #FFF5F0; }
+
+/* ===== Phone tweaks (actual devices) ===== */
 @media (max-width: 430px) {
-  /* 1) Tighter top area */
-  .quiz-section{
-    padding: 1rem .9rem calc(1.25rem + env(safe-area-inset-bottom));
+  /* Use the *small* viewport height so Safari chrome doesn’t steal space */
+  .quiz-section {
+    min-height: 100svh;
+    padding: .85rem .9rem calc(1rem + env(safe-area-inset-bottom));
     gap: .5rem;
   }
 
-  /* 2) Center & shrink headline block */
-  .quiz-header{
+  .quiz-header {
     align-items: center;
     text-align: center;
     gap: .35rem;
-    margin-bottom: .25rem;
+    margin-bottom: .2rem;
   }
-  .title{
+  .title {
     font-size: clamp(1.7rem, 6.2vw, 2.2rem);
     line-height: 1.05;
   }
-  .subtitle{
+  .subtitle {
     font-size: .95rem;
-    max-width: 30ch;        /* stop super-wide lines */
+    max-width: 30ch;
     margin-inline: auto;
   }
 
-  /* 3) Progress directly under subtitle, centered */
-  .progress-wrap{
-    width: 100%;
-    justify-items: center;
-  }
-  .progress-text{ font-size: .85rem; }
-  .progress-dots{ gap: .3rem; }
-  .dot{ width: 9px; height: 9px; }
+  .progress-wrap { width: 100%; justify-items: center; }
+  .progress-text { font-size: .85rem; }
+  .progress-dots { gap: .3rem; }
+  .dot { width: 9px; height: 9px; }
 
-  /* 4) Card sits higher & is slightly narrower for thumb reach */
-  .quiz-card{
-    margin-top: .15rem;
+  .quiz-card {
+    margin-top: .2rem;
     padding: .95rem;
+    width: min(94vw, 680px);
     border-radius: 16px;
-    max-width: 640px;       /* allows breathing on phablets */
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+    scroll-margin-top: 72px; /* avoids overlap with floating menu when jumping */
   }
 
-  /* 5) Step title & spacing */
-  .step{ gap: .7rem; }
-  .step-title{
-    font-size: 1.15rem;
-    margin: .15rem 0 .45rem;
+  /* If the phone is very narrow, stack the button under the input */
+  @media (max-width: 380px) {
+    .location-input-wrap { grid-template-columns: 1fr; }
+    .location-step .btn { width: 100%; max-width: none; }
   }
-
-  /* 6) Location row: compact input + button */
-  .location-input-wrap{ gap: .5rem; }
-  .location-input{ padding: .7rem .9rem; font-size: 1rem; }
-  .location-step .btn{ padding: .7rem 1rem; }
-  .autocomplete-list{ margin-top: .35rem; }
-
-  /* 7) Options grid: two-up on phones, smaller chips */
-  .options-wrap{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .5rem;
-  }
-  .chip{
-    padding: .6rem .7rem;
-    font-size: .96rem;
-  }
-
-  /* 8) Actions: full-width buttons, comfy hit targets */
-  .actions{
-    margin-top: .35rem;
-    gap: .5rem;
-    justify-content: stretch;
-  }
-  .btn, .btn-accent{
-    flex: 1;
-    padding: .8rem 1rem;
-    border-radius: 12px;
-    font-size: 1rem;
-  }
-}
-
-/* Prevent the floating menu button from overlapping card header on small screens */
-@media (max-width: 430px){
-  .quiz-card{ scroll-margin-top: 72px; }
 }
 </style>
