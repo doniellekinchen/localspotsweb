@@ -55,28 +55,31 @@
 
 
         <!-- Other steps -->
-        <div v-else key="q" class="step">
-          <h2 class="step-title">{{ currentQuestion.question }}</h2>
+        <!-- Other steps -->
+<div
+  v-else
+  key="q"
+  :class="['step', { 'vibe-step': step === vibeStep, 'budget-step': step === budgetStep }]"
+>
+  <h2 class="step-title">{{ currentQuestion.question }}</h2>
 
-          <div class="options-wrap">
-            <button
-              v-for="(option, index) in currentQuestion.options"
-              :key="index"
-              :class="['chip', { selected: isSelected(option) }]"
-              @click="handleOptionClick(option)"
-            >
-              {{ option }}
-            </button>
-          </div>
+  <div class="options-wrap">
+    <button
+      v-for="(option, index) in currentQuestion.options"
+      :key="index"
+      :class="['chip', { selected: isSelected(option) }]"
+      @click="handleOptionClick(option)"
+    >
+      {{ option }}
+    </button>
+  </div>
 
-          <div
-            class="actions"
-            v-if="step === vibeStep || step === budgetStep"
-          >
-            <button class="btn" @click="step = Math.max(0, step - 1)">← Back</button>
-            <button class="btn btn-accent" @click="submitMultiSelect">Next →</button>
-          </div>
-        </div>
+  <div class="actions" v-if="step === vibeStep || step === budgetStep">
+    <button class="btn" @click="step = Math.max(0, step - 1)">← Back</button>
+    <button class="btn btn-accent" @click="submitMultiSelect">Next →</button>
+  </div>
+</div>
+
       </transition>
     </div>
   </section>
@@ -317,7 +320,11 @@ html { -webkit-text-size-adjust: 100%; }
 /* step */
 .step { display: grid; gap: 1rem; }
 .step-title {
-  font-size: 1.4rem; color: var(--accent); margin: .25rem 0 .75rem;
+  font-size: 1.4rem; 
+  color: var(--accent); 
+  margin: .25rem 0 .75rem;
+  text-align: center;
+  width: 100%;
 }
 
 /* option chips */
@@ -325,7 +332,26 @@ html { -webkit-text-size-adjust: 100%; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: .6rem;
+  justify-self: center;
 }
+
+/* Exactly 2 columns on the "What's your vibe?" step */
+.vibe-step .options-wrap {
+  display: grid;                  /* already grid, but ensure */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .6rem .8rem;               /* row gap, column gap */
+  justify-items: stretch;         /* chips fill each column nicely */
+}
+
+/* Optional: keep 2 columns even on small phones */
+@media (max-width: 360px) {
+  .vibe-step .options-wrap {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .5rem .6rem;
+  }
+}
+
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -351,7 +377,8 @@ html { -webkit-text-size-adjust: 100%; }
   margin-top: .25rem;
   display: flex;
   gap: .6rem;
-  justify-content: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 .btn {
   padding: .7rem 1.1rem;
@@ -467,5 +494,14 @@ html { -webkit-text-size-adjust: 100%; }
     .location-input-wrap { grid-template-columns: 1fr; }
     .location-step .btn { width: 100%; max-width: none; }
   }
+
+  @media (max-width: 430px) {
+  .btn,
+  .btn-accent {
+    flex: 1;
+    max-width: 180px; /* keeps them from stretching too much */
+    text-align: center;
+  }
+}
 }
 </style>
