@@ -440,4 +440,78 @@ export default {
   .actions { justify-content: stretch; }
   .btn, .btn-accent { flex: 1; text-align: center; }
 }
+/* ===== Mobile polish for VibeMatch Quiz (single consolidated block) ===== */
+@media (max-width: 640px) {
+  /* overall breathing */
+  .quiz-section {
+    padding: 1.1rem .9rem 1.4rem;
+    gap: .5rem; /* less gap between header & card */
+  }
+
+  /* centered header + progress */
+  .quiz-header {
+    gap: .4rem;
+    margin-bottom: 0;         /* tighter */
+    align-items: center;
+    text-align: center;
+  }
+  .title { font-size: clamp(1.6rem, 6vw, 2.2rem); }
+  .subtitle { font-size: .95rem; margin-top: .1rem; }
+
+  .progress-wrap {
+    width: 100%;
+    justify-items: center;     /* center the text + dots */
+  }
+  .progress-text { font-size: .85rem; }
+  .progress-dots { justify-content: center; gap: .32rem; }
+  .dot { width: 9px; height: 9px; }
+
+  /* card */
+  .quiz-card {
+    align-self: start;
+    padding: .9rem;
+    margin-top: 0;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+  }
+
+  /* step title and spacing */
+  .step { gap: .75rem; }
+  .step-title {
+    font-size: 1.15rem;
+    margin: .15rem 0 .5rem;
+  }
+
+  /* location input row */
+  .location-input-wrap { gap: .5rem; }
+  .location-input { padding: .7rem .9rem; }
+  .location-step .btn { padding: .7rem 1rem; }
+  .autocomplete-list { margin-top: .35rem; }
+
+  /* options grid & chips */
+  .options-wrap {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2-up on phones */
+    gap: .5rem;
+  }
+  .chip {
+    padding: .6rem .7rem;
+    font-size: .95rem;
+  }
+
+  /* actions row */
+  .actions {
+    margin-top: .35rem;
+    gap: .5rem;
+    justify-content: stretch;
+  }
+  .btn, .btn-accent { flex: 1; text-align: center; }
+}
+
+/* ultra-small phones: allow input row to wrap so the button doesn’t squish */
+@media (max-width: 380px) {
+  .location-input-wrap { flex-wrap: wrap; }
+  .location-step .btn { width: 100%; }
+}
+
+
 </style>
