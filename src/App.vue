@@ -17,6 +17,12 @@ export default {
 </script>
 
 <style>
+:root {
+  --bg1:#FFF9F6; --bg2:#FFEFE7; --text:#333; --muted:#666; --muted-2:#8a8a8a;
+  --accent:#C8553D; --accent-2:#F28F3B; --cyan:#588B8B; --apricot:#FFD5C2;
+  --chip-bg:#FFF1EC; --border:rgba(200,85,61,0.14);
+}
+
 *,
 *::before,
 *::after {
@@ -33,6 +39,7 @@ html, body, #app {
 
 body {
   overflow-x: hidden;
+  background: linear-gradient(135deg, #FFF9F6 0%, #FFEFE7 100%);
 }
 
 .homepage {

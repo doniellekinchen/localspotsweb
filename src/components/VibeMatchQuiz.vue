@@ -1,59 +1,86 @@
 <template>
-  <div class="quiz-container">
-    <div class="quiz-overlay">
-      <div class="quiz-card">
-         <div class="progress-dots">
+  <section class="quiz-section" aria-labelledby="quiz-title">
+    <!-- header -->
+    <header class="quiz-header">
+      <div>
+         <span class="icon">✨</span> 
+        <h1 id="quiz-title" class="title">
+         Find Your Vibe
+        </h1>
+        <p class="subtitle">Answer a few quick questions to get personalized matches.</p>
+      </div>
+
+      <!-- progress -->
+      <div class="progress-wrap" v-if="questions && questions.length">
+        <span class="progress-text">Step {{ Math.min(step + 1, questions.length + 1) }} of {{ questions.length + 1 }}</span>
+        <div class="progress-dots">
           <span
-            v-for="i in questions.length"
+            v-for="i in (questions.length + 1)"
             :key="i"
-            :class="{ dot: true, active: step === i }"
-          ></span>
+            :class="['dot', { active: step + 1 === i }]"
+          />
         </div>
-        <transition name="fade">
-          <div v-if="step === 0" class="step">
-          <h2 class="step-title">Where are you located?</h2>
-          <input v-model="locationInput" placeholder="Enter your neighborhood" />
-          <ul v-if="suggestions.length" class="autocomplete-list">
-            <li
-              v-for="(s, i) in suggestions"
-              :key="i"
-              class="autocomplete-item"
-              @click="selectSuggestion(s)"
-            >
-              {{ s.placeName }}
-            </li>
-          </ul>
-          <button @click="submitLocation" class="next-button">Next</button>
-        </div>
-        <div v-else class="step">
-          <h2 class="step-title">{{ currentQuestion.question }}</h2>
-         <div class="options-scroll-wrapper">
-  <div class="options-grid">
-    <button
-      v-for="(option, index) in currentQuestion.options"
-      :key="index"
-      :class="{ selected: isSelected(option) }"
-      @click="handleOptionClick(option)"
-    >
-      {{ option }}
-    </button>
+      </div>
+    </header>
+
+    <!-- card -->
+    <div class="quiz-card">
+      <transition name="fade" mode="out-in">
+        <!-- Step 0: location -->
+<div v-if="step === 0" key="loc" class="step location-step">
+  <h2 class="step-title">Where are you located?</h2>
+
+  <div class="location-input-wrap">
+    <input
+      v-model="locationInput"
+      class="location-input"
+      placeholder="Enter your neighborhood"
+      aria-label="Enter your neighborhood"
+    />
+    <button @click="submitLocation" class="btn btn-accent">Next →</button>
   </div>
+
+  <ul v-if="suggestions.length" class="autocomplete-list" role="listbox">
+    <li
+      v-for="(s, i) in suggestions"
+      :key="i"
+      class="autocomplete-item"
+      role="option"
+      @click="selectSuggestion(s)"
+    >
+      {{ s.placeName }}
+    </li>
+  </ul>
 </div>
 
-          <button
-            v-if="step === vibeStep || step === budgetStep"
-            class="next-button"
-            @click="submitMultiSelect"
-          >
-            Next
-          </button>
-         </div>
-        </transition>
-      </div>
-    </div>
-  </div>
-</template>
 
+        <!-- Other steps -->
+        <div v-else key="q" class="step">
+          <h2 class="step-title">{{ currentQuestion.question }}</h2>
+
+          <div class="options-wrap">
+            <button
+              v-for="(option, index) in currentQuestion.options"
+              :key="index"
+              :class="['chip', { selected: isSelected(option) }]"
+              @click="handleOptionClick(option)"
+            >
+              {{ option }}
+            </button>
+          </div>
+
+          <div
+            class="actions"
+            v-if="step === vibeStep || step === budgetStep"
+          >
+            <button class="btn" @click="step = Math.max(0, step - 1)">← Back</button>
+            <button class="btn btn-accent" @click="submitMultiSelect">Next →</button>
+          </div>
+        </div>
+      </transition>
+    </div>
+  </section>
+</template>
 
 <script>
 import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
@@ -71,8 +98,8 @@ export default {
       coords: null,
       answers: [],
       selectedMulti: [],
-      vibeStep: 2,
-      budgetStep: 3,
+      vibeStep: 2,   // multi-select step index (as in your original)
+      budgetStep: 3, // multi-select step index (as in your original)
       questions: [
         {
           question: "Who are you with?",
@@ -95,23 +122,11 @@ export default {
         this.suggestions = [];
         return;
       }
-
       try {
         const response = await geocodingClient
-          .forwardGeocode({
-            query: newVal,
-            autocomplete: true,
-            limit: 5
-          })
+          .forwardGeocode({ query: newVal, autocomplete: true, limit: 5 })
           .send();
-
-        const features = response.body.features;
-
-        if (!features || features.length === 0) {
-          this.suggestions = [];
-          return;
-        }
-
+        const features = response.body.features || [];
         this.suggestions = features.map(f => ({
           placeName: f.place_name,
           lat: f.geometry.coordinates[1],
@@ -126,6 +141,9 @@ export default {
   computed: {
     currentQuestion() {
       return this.questions[this.step - 1];
+    },
+    totalSteps() {
+      return this.questions.length + 1; // +1 for location
     }
   },
   methods: {
@@ -155,7 +173,7 @@ export default {
     handleOptionClick(option) {
       if (this.step === this.vibeStep || this.step === this.budgetStep) {
         this.selectedMulti.includes(option)
-          ? this.selectedMulti = this.selectedMulti.filter(o => o !== option)
+          ? (this.selectedMulti = this.selectedMulti.filter(o => o !== option))
           : this.selectedMulti.push(option);
       } else {
         this.answers.push(option);
@@ -168,10 +186,8 @@ export default {
         alert('Please select at least one option.');
         return;
       }
-
       this.answers.push(this.selectedMulti);
       this.step++;
-
       if (this.step > this.questions.length) {
         const [location, dateType, vibe, budget] = this.answers;
         this.$router.push({
@@ -193,187 +209,235 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.quiz-container {
-  position: fixed;
-  inset: 0;
-  background-image: url('/atlskyline2.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: 0;
+/* ===== Theme tokens (match site) ===== */
+:root {
+  --bg1: #FFF9F6;
+  --bg2: #FFEFE7;
+  --text: #333;
+  --muted: #666;
+  --accent: #C8553D;    /* Jasper */
+  --accent-2: #F28F3B;  /* Tangerine */
+  --cyan: #588B8B;
+  --apricot: #FFD5C2;
+  --chip-bg: #FFF1EC;
+  --border: rgba(200,85,61,0.14);
+}
+
+.quiz-section {
+  min-height: 100vh;
+  padding: 2.25rem 1.25rem 3rem;
+  background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+  font-family: "Special Gothic Expanded One", sans-serif;
+  color: var(--text);
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  position: relative;
   overflow: hidden;
 }
 
-.quiz-overlay {
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  box-sizing: border-box;
+/* soft background blobs */
+.quiz-section::before,
+.quiz-section::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  filter: blur(12px);
+}
+.quiz-section::before {
+  right: -80px; top: -80px;
+  width: 360px; height: 360px;
+  background: radial-gradient(ellipse at center, rgba(242,143,59,0.12), transparent 60%);
+}
+.quiz-section::after {
+  left: -100px; bottom: -120px;
+  width: 460px; height: 460px;
+  background: radial-gradient(ellipse at center, rgba(200,85,61,0.10), transparent 60%);
+  filter: blur(14px);
 }
 
-.quiz-card {
-  background: white;
-  border-radius: 24px;
-  width: 100%;
-  max-width: 960px;
-  padding: 3rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+/* header */
+.quiz-header {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  text-align: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
   z-index: 1;
 }
-
-.step {
-  text-align: center;
+.title {
+  display: flex; 
+  align-items: center; 
+  gap: .6rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--accent);
+  margin: 0;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255,255,255,.6);
+}
+.icon { font-size: 1.1em; }
+.subtitle {
+  margin: .25rem 0 0;
+  color: var(--cyan);
+  font-size: 1.05rem;
 }
 
-.step-title {
-  font-size: 2rem;
-  color: #c8553d;
-  margin-bottom: 1.5rem;
-}
-
-input {
-  padding: 0.85rem;
-  font-size: 1rem;
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid #ccc;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.autocomplete-list {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 1rem;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background: white;
-  max-height: 200px;
-  overflow-y: auto;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-}
-
-.autocomplete-item {
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.autocomplete-item:hover {
-  background-color: #fff0ea;
-}
-
-.options-scroll-wrapper {
-  max-height: 300px; /* adjust based on your layout */
-  overflow-y: auto;
-  margin-top: 1rem;
-  padding-right: 4px; /* to avoid scrollbar overlap */
-}
-
-/* Optional: make it prettier when scrolling */
-.options-scroll-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-.options-scroll-wrapper::-webkit-scrollbar-thumb {
-  background-color: rgba(200, 85, 61, 0.4);
-  border-radius: 3px;
-}
-
-
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-}
-
-.options-grid button {
-  background: white;
-  border: 2px solid #f3d1c4;
-  border-radius: 999px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-.options-grid button:hover {
-  background-color: #ffe3d6;
-  transform: scale(1.03);
-}
-.options-grid button.selected {
-  background-color: #c8553d;
-  color: white;
-  font-weight: 600;
-  border-color: #c8553d;
-}
-
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 999px;
-  padding: 0.75rem 1.5rem;
-  background-color: #ffe8df;
-  color: #333;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-button:hover {
-  background-color: #ffd5c2;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.next-button {
-  background-color: #F28F3B;
-  color: white;
-  font-weight: bold;
-  font-size: 1rem;
-  padding: 0.9rem 2.5rem;
-  margin-top: 2rem;
-}
-.next-button:hover {
-  background-color: #c8553d;
-}
-
+/* progress */
+.progress-wrap { display: grid; gap: .4rem; justify-items: end; }
+.progress-text { color: var(--muted); font-size: .95rem; }
 .progress-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  display: flex; gap: .4rem; align-items: center; justify-content: flex-end;
 }
 .dot {
-  width: 12px;
-  height: 12px;
-  background-color: #ddd;
-  border-radius: 50%;
-  transition: background-color 0.3s ease;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #e8e8e8; transition: background-color .3s ease, transform .3s ease;
 }
-.dot.active {
-  background-color: #F28F3B;
+.dot.active { background: var(--accent-2); transform: scale(1.1); }
+
+/* card */
+.quiz-card {
+  align-self: start;
+  height: auto;
+  z-index: 1;
+  max-width: 840px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  padding: 1.25rem;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: all 0.4s ease;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
+/* step */
+.step { display: grid; gap: 1rem; }
+.step-title {
+  font-size: 1.4rem; color: var(--accent); margin: .25rem 0 .75rem;
 }
 
-@media (max-height: 700px) {
-  .quiz-overlay {
-    align-items: flex-start;
-    padding-top: 2rem;
-  }
+/* location input and autocomplete */
+.input-wrap { position: relative; }
+.input {
+  width: 100%;
+  padding: .9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #e8e1de;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  font-size: 1rem;
+}
+.autocomplete-list {
+  list-style: none;
+  margin: .4rem 0 0;
+  padding: .25rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.08);
+  max-height: 220px;
+  overflow-y: auto;
+}
+.autocomplete-item {
+  padding: .6rem .7rem;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.autocomplete-item:hover { background: #FFF5F0; }
+
+/* option chips */
+.options-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: .6rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .7rem .9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(200,85,61,.18);
+  background: #fff;
+  color: var(--accent);
+  font-weight: 700;
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease, color .15s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.chip:hover { transform: translateY(-1px); background: #FFF5F0; }
+.chip.selected {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(200,85,61,.25);
+}
+
+/* actions */
+.actions {
+  margin-top: .25rem;
+  display: flex;
+  gap: .6rem;
+  justify-content: flex-end;
+}
+.btn {
+  padding: .7rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--accent);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.06); background: #FFF5F0; }
+.btn-accent {
+  background: var(--accent-2);
+  color: #fff;
+  border-color: transparent;
+}
+.btn-accent:hover { background: #d9772f; }
+
+/* transitions */
+.fade-enter-active, .fade-leave-active { transition: opacity .28s ease, transform .28s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(8px); }
+
+/* Special layout for first step */
+.location-step { gap: .75rem; }
+
+/* Input + button inline */
+.location-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.location-input {
+  flex: 1;
+  padding: .8rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #e8e1de;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  font-size: 1rem;
+}
+
+.location-step .btn {
+  white-space: nowrap;
+  height: 100%;
+  padding: .8rem 1.1rem;
+}
+
+/* Dropdown stretches under input */
+.autocomplete-list {
+  margin-top: .5rem;
+  max-width: 100%;
 }
 
 
+/* responsive */
+@media (max-width: 640px) {
+  .quiz-card { padding: 1rem; }
+  .actions { justify-content: stretch; }
+  .btn, .btn-accent { flex: 1; text-align: center; }
+}
 </style>

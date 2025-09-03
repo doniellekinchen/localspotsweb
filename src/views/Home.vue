@@ -1,6 +1,6 @@
 <template>
   <div class="homepage">
-    <!-- Hero Section -->
+    <!-- Hero Section with Enhanced VibeMatch Focus -->
     <section id="vibematch" class="hero-section fade-in">
       <div class="video-wrapper">
         <video
@@ -14,96 +14,173 @@
           class="bg-video"
           :class="{ active: index === videoIndex }"
         ></video>
-        <div class="dark-overlay"></div>
+        <div class="gradient-overlay"></div>
       </div>
 
-      <div class="hero-overlay">
-        <h1 class="title">What's Your Vibe Today?</h1>
-        <p>Start the quiz to find your perfect outing based on mood, weather, and budget.</p>
-        <button @click="startVibeMatch">Start VibeMatch</button>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-icon">✨</span>
+          <span>Discover Atlanta's Best Spots</span>
+        </div>
+        
+        <h1 class="hero-title">
+          What's Your
+          <span class="highlight">Vibe</span>
+          Today?
+        </h1>
+        
+        <p class="hero-description">
+          Take our quick quiz to find the perfect spot based on your mood, 
+          who you're with, and your budget. Tailored just for you.
+        </p>
+        
+        <div class="cta-section">
+          <button @click="startVibeMatch" class="primary-cta">
+            <span class="cta-icon">🎯</span>
+            Start VibeMatch
+            <span class="cta-arrow">→</span>
+          </button>
+          <p class="cta-subtext">Takes less than 2 minutes</p>
+        </div>
+
+        <div class="scroll-indicator" @click="scrollToWeather">
+          <div class="scroll-dot"></div>
+          <span>Explore more</span>
+        </div>
       </div>
     </section>
 
-    <!-- Weather Picks Section -->
-   <section id="weather" class="weather-fullscreen fade-in">
-  <h1 class="weather-headline">Today’s Weather in ATL</h1>
-  <div class="weather-inner">
-    <!-- <h2 class="subtitle">🌦 Today’s Vibe Check</h2> -->
-    <p class="weather-blurb">{{ weatherText }}</p>
-    <WeatherPicks :listings="weatherListings" />
-  </div>
-</section>
-
-    <!-- Featured Listings Section -->
-<section class="section trending-section fade-in">
-  <div class="trending-overlay"></div>
-  <div class="trending-content">
-    <h2 class="subtitle">🔥 Trending For Your Budget</h2>
-
-    <div v-for="(group, label) in groupedByPrice" :key="label" class="budget-group">
-      <h3 class="budget-label">{{ budgetIcons[label] }} {{ formatLabel(label) }}</h3>
-      <div class="trending-grid">
-        <div
-          v-for="item in group.slice(0, 3)"
-          :key="item.id"
-          class="trending-card"
-          :style="{ backgroundImage: `url(${item.image})` }"
-        >
-          <div v-if="item.isHot" class="hot-badge">🔥 Hot</div>
-          <router-link :to="{ name: 'ListingDetails', params: { id: item.id } }" class="overlay">
-            <span>{{ item.name }}</span>
-          </router-link>
+    <!-- Weather Section with Improved Layout -->
+    <section id="weather" class="weather-section fade-in">
+      <div class="weather-container">
+        <div class="weather-header">
+          <h2 class="weather-title">Today's Weather Picks</h2>
+          <p class="weather-subtitle">{{ weatherText }}</p>
+        </div>
+        
+        <div class="weather-content">
+          <WeatherPicks :listings="weatherListings" />
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
+    <!-- Trending Section with Better Visual Hierarchy -->
+    <section class="trending-section fade-in">
+      <div class="trending-background"></div>
+      <div class="trending-container">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="title-icon">🔥</span>
+            Trending For Your Budget
+          </h2>
+          <p class="section-subtitle">Popular spots across all price ranges</p>
+        </div>
 
+        <div class="budget-groups">
+          <div v-for="(group, label) in groupedByPrice" :key="label" class="budget-group">
+            <div class="budget-header">
+              <span class="budget-icon">{{ budgetIcons[label] }}</span>
+              <h3 class="budget-title">{{ formatLabel(label) }}</h3>
+              <span class="count-badge">{{ group.length }}</span>
+            </div>
+            
+            <div class="trending-carousel">
+              <div class="trending-grid">
+                <div
+                  v-for="item in group.slice(0, 4)"
+                  :key="item.id"
+                  class="trending-card"
+                  :style="{ backgroundImage: `url(${item.image || placeholderImage})` }"
+                >
+                  <div v-if="item.isHot" class="hot-badge">
+                    <span class="hot-icon">🔥</span>
+                    Hot
+                  </div>
+                  <router-link 
+                    :to="{ name: 'ListingDetails', params: { id: item.id } }" 
+                    class="card-overlay"
+                  >
+                    <div class="card-content">
+                      <h4 class="card-title">{{ item.name }}</h4>
+                      <p class="card-vibe">{{ getVibeText(item) }}</p>
+                    </div>
+                  </router-link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Categories Section with Improved Cards -->
+    <section id="categories" class="categories-section fade-in">
+      <div class="categories-container">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="title-icon">✨</span>
+            Quick Browse
+          </h2>
+          <p class="section-subtitle">Jump straight to what you're looking for</p>
+        </div>
 
-    <!-- Categories -->
-    <section id="categories" class="section fade-in">
-      <h2 class="subtitle">✨ Explore by Category</h2>
-      <div class="category-grid">
-        <CategoryCard
-  title="Solo Vibes"
-  :label="'Solo'"
-  :category="'dateType'"
-/>
-<CategoryCard
-  title="Date Night"
-  :label="'Date night'"
-  :category="'dateType'"
-/>
-<CategoryCard
-  title="Girls' Night Out"
-  :label="'Friends'"  
-  :category="'dateType'"
-/>
-<CategoryCard
-  title="Family Fun"
-  :label="'Family'"
-  :category="'dateType'"
-/>
+        <div class="category-grid">
+          <div class="category-card" @click="goToCategory('dateType', 'Solo')">
+            <div class="category-icon">🧘‍♀️</div>
+            <div class="category-content">
+              <h3>Solo Vibes</h3>
+              <p>Perfect for me-time adventures</p>
+            </div>
+            <div class="category-arrow">→</div>
+          </div>
 
+          <div class="category-card" @click="goToCategory('dateType', 'Date night')">
+            <div class="category-icon">❤️</div>
+            <div class="category-content">
+              <h3>Date Night</h3>
+              <p>Romantic spots for two</p>
+            </div>
+            <div class="category-arrow">→</div>
+          </div>
+
+          <div class="category-card" @click="goToCategory('dateType', 'Friends')">
+            <div class="category-icon">💃</div>
+            <div class="category-content">
+              <h3>Friends Hangout</h3>
+              <p>Fun group activities</p>
+            </div>
+            <div class="category-arrow">→</div>
+          </div>
+
+          <div class="category-card" @click="goToCategory('dateType', 'Family')">
+            <div class="category-icon">👨‍👩‍👧‍👦</div>
+            <div class="category-content">
+              <h3>Family Fun</h3>
+              <p>Activities for all ages</p>
+            </div>
+            <div class="category-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="explore-more">
+          <router-link to="/explore" class="explore-link">
+            <span>Explore All Categories</span>
+            <span class="explore-arrow">→</span>
+          </router-link>
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script>
-import VibeMatchQuiz from '../components/VibeMatchQuiz.vue';
 import WeatherPicks from '../components/WeatherPicks.vue';
-import CategoryCard from '../components/CategoryCard.vue';
 import { supabase } from '../supabase';
 
 export default {
   name: 'HomePage',
   components: {
-    WeatherPicks,
-    CategoryCard,
-    VibeMatchQuiz
+    WeatherPicks
   },
   data() {
     return {
@@ -120,18 +197,16 @@ export default {
       weather: {
         isSunny: true,
         isRain: false
-      }
+      },
+      placeholderImage: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg'
     };
   },
   computed: {
-    selectedVideo() {
-      return this.videos[this.videoIndex];
-    },
     weatherText() {
       if (!this.weather) return 'Loading weather data...';
-      if (this.weather.isRain) return '☔ Rainy day vibes? We’ve got cozy spots you’ll love.';
-      if (this.weather.isSunny) return '☀️ Sunshine approved! Let’s take it outside.';
-      return '🌤 A little bit of everything — explore versatile picks!';
+      if (this.weather.isRain) return '☔ Rainy day vibes? We\'ve got cozy indoor spots you\\ll love.';
+      if (this.weather.isSunny) return '☀️ Sunshine approved! Perfect weather for outdoor adventures.';
+      return '🌤 Mixed weather calls for versatile picks — indoor and outdoor options ready!';
     },
     groupedByPrice() {
       const buckets = {
@@ -146,7 +221,10 @@ export default {
           buckets[item.price].push(item);
         }
       });
-      return buckets;
+      // Only return groups that have items
+      return Object.fromEntries(
+        Object.entries(buckets).filter(([key, value]) => value.length > 0)
+      );
     },
     budgetIcons() {
       return {
@@ -162,15 +240,32 @@ export default {
     formatLabel(label) {
       const friendly = {
         '$': 'Budget-Friendly',
-        '$$': 'Mid-Tier Picks',
-        '$$$': 'High-End Spots',
-        '$-$$': 'Flexible Finds',
-        '$$-$$$': 'Lux on a Budget'
+        '$$': 'Mid-Range',
+        '$$$': 'Premium',
+        '$-$$': 'Flexible Budget',
+        '$$-$$$': 'Upscale Value'
       };
       return friendly[label] || label;
     },
+    getVibeText(item) {
+      const vibes = Array.isArray(item.vibe) ? item.vibe : 
+                   typeof item.vibe === 'string' ? item.vibe.split(',').map(v => v.trim()) : [];
+      return vibes.slice(0, 2).join(', ') || 'Great vibes';
+    },
     startVibeMatch() {
       this.$router.push('/vibematch');
+    },
+    goToCategory(filter, value) {
+      this.$router.push({
+        name: 'CategoryDirectory',
+        query: { filter, value }
+      });
+    },
+    scrollToWeather() {
+      document.getElementById('weather').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
     },
     rotateVideo() {
       this.videoIndex = (this.videoIndex + 1) % this.videos.length;
@@ -179,70 +274,74 @@ export default {
       const { data, error } = await supabase
         .from('atl_locations4')
         .select('*')
-        .eq('isHot', true)
-        .limit(6);
+        .limit(20);
 
-      if (!error) {
-        this.featured = data;
+      if (!error && data) {
+        // Mix of hot items and random selection
+        const hotItems = data.filter(item => item.isHot);
+        const otherItems = data.filter(item => !item.isHot);
+        const randomOthers = otherItems.sort(() => 0.5 - Math.random()).slice(0, 8);
+        this.featured = [...hotItems, ...randomOthers];
       } else {
-        console.error('🔥 Featured fetch failed:', error.message);
+        console.error('Featured fetch failed:', error?.message);
       }
     },
     async fetchWeatherListings() {
-      let tags = [];
-
-      if (this.weather.isRain) tags = ['cozy', 'indoors'];
-      else if (this.weather.isSunny) tags = ['outdoor', 'nature', 'park'];
-      else tags = ['fun'];
-
       const { data, error } = await supabase
         .from('atl_locations4')
         .select('*')
-        .contains('tags', tags)
-        .limit(5);
+        .limit(10);
 
-      if (!error) {
+      if (!error && data) {
         this.weatherListings = data;
       } else {
-        console.error('🌦 Weather fetch failed:', error.message);
+        console.error('Weather listings fetch failed:', error?.message);
       }
     }
   },
   mounted() {
-    // run video + data logic
-    setInterval(this.rotateVideo, 10000);
+    // Video rotation
+    setInterval(this.rotateVideo, 8000);
+    
+    // Data fetching
     this.fetchFeatured();
     this.fetchWeatherListings();
 
-    // set up intersection observer
+    // Intersection observer for animations
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('show');
         }
       });
-    });
+    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    this.$nextTick(() => {
+      document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    });
   }
 };
 </script>
 
-
 <style scoped>
+/* Global Styles */
 .homepage {
   padding: 0;
   margin: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: #FFFFFF;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #ffffff;
+  overflow-x: hidden;
 }
 
-/* Hero Section Styles */
+/* Hero Section */
 .hero-section {
   position: relative;
   height: 100vh;
+  min-height: 600px;
   overflow: hidden;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .video-wrapper {
@@ -252,7 +351,6 @@ export default {
   width: 100%;
   height: 100%;
   z-index: 0;
-    overflow: hidden;
 }
 
 .bg-video {
@@ -263,332 +361,529 @@ export default {
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
-  z-index: 0;
+  transition: opacity 1.5s ease-in-out;
 }
 
 .bg-video.active {
   opacity: 1;
-  z-index: 1;
 }
 
-.dark-overlay {
+.gradient-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(200, 85, 61, 0.3) 50%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  z-index: 1;
 }
 
-.hero-overlay {
+.hero-content {
   position: relative;
   z-index: 2;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 2rem;
+  text-align: center;
   color: white;
-}
-
-#vibematch {
-  padding-top: 80px; /* Adjust if needed */
-}
-
-#vibematch .title {
-   font-family: "Special Gothic Expanded One", sans-serif;
-  font-weight: 600;
-  font-style: normal;
-  color: #C8553D;
-  font-size: 5rem;
-  margin-bottom: 1rem;
-  text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4); 
-}
-
-#vibematch p {
-  color: #FFD5C2;
-  font-size: 1.25rem;
   max-width: 600px;
-  margin: 0 auto 2rem auto;
+  padding: 2rem;
 }
 
-#vibematch button {
-  background-color: #F28F3B;
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.badge-icon {
+  font-size: 1.1rem;
+}
+
+.hero-title {
+  font-family: "Special Gothic Expanded One", sans-serif;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0 0 1.5rem 0;
+  text-shadow: 2px 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.highlight {
+  color: #FFD5C2;
+  position: relative;
+}
+
+.highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0.1em;
+  left: 0;
+  right: 0;
+  height: 0.15em;
+  background: linear-gradient(90deg, #F28F3B, #FFD5C2);
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+.hero-description {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-section {
+  margin-bottom: 3rem;
+}
+
+.primary-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #F28F3B, #C8553D);
   color: white;
   border: none;
-  padding: 0.8rem 2.2rem;
+  padding: 1rem 2.5rem;
   font-size: 1.1rem;
+  font-weight: 600;
   border-radius: 999px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  display: inline-block;
-  width: fit-content; /* 🟢 key fix */
-  align-self: center; /* if inside a flex container */
-}
-
-
-#vibematch button:hover {
-  background-color: #C8553D;
-}
-
-.section {
-  margin: 4rem 2rem;
-  text-align: center;
-}
-
-.debug-wrapper {
-  outline: 2px dashed red;
-  max-width: 100%;
-}
-
-
-.subtitle {
-  font-family: "Special Gothic Expanded One", sans-serif;
-  font-size: 2rem;
-  color: #C8553D;
-  margin-bottom: 1.5rem;
-}
-
-/* Category Cards */
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.category-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: white;
-  padding: 2rem 1rem;
-  border-radius: 16px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.3s ease;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-}
-
-.category-card:hover {
-  transform: translateY(-5px);
-}
-
-.category-card span {
-  margin-top: 0.5rem;
-}
-
-.category-card.solo {
-  background-image: url('https://images.unsplash.com/photo-1549924231-f129b911e442');
-}
-
-.category-card.date {
-  background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e');
-}
-
-.category-card.friends {
-  background-image: url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e');
-}
-
-.category-card.family {
-  background-image: url('https://images.unsplash.com/photo-1606041008023-472dfb5e5306');
-}
-
-/* Fade animation for video switching */
-.fade-enter-active, .fade-leave-active {
-  transition: 0.1ms ease-in-out;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-.weather-fullscreen {
-  min-height: 100vh;
-  width: 100%;
-  background: linear-gradient(rgba(255, 247, 242, 0.3), rgba(255, 239, 231, 0.3)),
-              url('/softsky.jpg') no-repeat center center;
-  background-size: cover;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  text-align: center;
-  padding: 3rem 1rem;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(242, 143, 59, 0.4);
   position: relative;
-  z-index: 1;
-    margin-bottom: 0;
-  padding-bottom: 0;
+  overflow: hidden;
 }
 
-
-.weather-headline {
-  font-family: "Special Gothic Expanded One", sans-serif;
-  font-size: 5rem;
-  font-weight: 600;
-  color: #C8553D;
-  text-align: center;
-  /* margin: 2rem auto 1rem; */
-  margin-bottom: 0.5rem;
-  text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.15);
-  width: 100%;
-}
-
-.weather-inner {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2rem 1rem; /* Add horizontal padding for small screens */
-  box-sizing: border-box;
-  /* outline: 1px solid lime;  */
-  overflow-x: hidden;
-}
-
-
-.weather-fullscreen .subtitle {
-  font-family: 'Bowlby One', cursive;
-  font-size: 3rem;
-  color: #C8553D;
-  margin-bottom: 1rem;
-}
-
-.weather-blurb {
-  font-size: 1.3rem;
-  color: #588B8B;
-  margin-top: 0;
-  margin-bottom: 2rem;
-}
-
-.overlay {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-  background-color: rgba(0, 0, 0, 0.4);
+.primary-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
   height: 100%;
-  font-size: 1.25rem;
-  font-weight: bold;
-  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.primary-cta:hover::before {
+  left: 100%;
+}
+
+.primary-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(242, 143, 59, 0.5);
+}
+
+.cta-icon {
+  font-size: 1.2rem;
+}
+
+.cta-arrow {
+  transition: transform 0.3s ease;
+}
+
+.primary-cta:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+.cta-subtext {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.3s ease;
+}
+
+.scroll-indicator:hover {
+  color: white;
+}
+
+.scroll-dot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: bounce 2s infinite;
+}
+
+.scroll-indicator span {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Weather Section */
+.weather-section {
+  background: linear-gradient(135deg, #FFF9F6 0%, #FFEFE7 100%);
+  padding: 4rem 0;
+}
+
+.weather-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.weather-header {
   text-align: center;
+  margin-bottom: 3rem;
+}
+
+.weather-title {
+  font-family: "Special Gothic Expanded One", sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: #C8553D;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.weather-subtitle {
+  font-size: 1.2rem;
+  color: #588B8B;
+  margin: 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Trending Section */
+.trending-section {
+  position: relative;
+  padding: 4rem 0;
+  overflow: hidden;
+}
+
+.trending-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(200, 85, 61, 0.05) 0%,
+    rgba(242, 143, 59, 0.08) 50%,
+    rgba(255, 213, 194, 0.1) 100%
+  );
+  z-index: 0;
+}
+
+.trending-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: "Special Gothic Expanded One", sans-serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #C8553D;
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+}
+
+.title-icon {
+  font-size: 0.9em;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+.budget-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.budget-group {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(200, 85, 61, 0.1);
+}
+
+.budget-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #FFF5F0;
+}
+
+.budget-icon {
+  font-size: 1.8rem;
+}
+
+.budget-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
+.count-badge {
+  background: #FFD5C2;
+  color: #C8553D;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .trending-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
 .trending-card {
   position: relative;
-  height: 280px;
-  border-radius: 20px;
+  height: 200px;
+  border-radius: 16px;
   background-size: cover;
   background-position: center;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(200, 85, 61, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .trending-card:hover {
-  transform: scale(1.04);
-  box-shadow: 0 12px 28px rgba(200, 85, 61, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
-
-.trending-card .overlay {
-  background: linear-gradient(to top, rgba(97, 91, 91, 0.898), transparent);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 1rem;
-  height: 100%;
-  color: white;
-  font-weight: bold;
-  font-size: 1.4rem;
-  text-align: center;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-  transition: background 0.3s ease;
-}
-
-.trending-section {
-  position: relative;
-  background: url('/atlskyline.jpg') no-repeat center center;
-  background-size: cover;
-  overflow: hidden;
-  padding: 4rem 2rem;
-  margin: 2rem 0;
-  /* border-radius: 20px; */
-  color: white;
-    margin-top: 0;
-  padding-top: 0;
-}
-
-.trending-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* adjust darkness here */
-  z-index: 1;
-  pointer-events: none;
-}
-
-.trending-content {
-  position: relative;
-  z-index: 2;
-}
-
 
 .hot-badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background-color: #ff6b6b;
+  top: 1rem;
+  left: 1rem;
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
   color: white;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.65rem; /* This is the magic line */
-  font-weight: bold;
+  padding: 0.4rem 0.8rem;
   border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
   z-index: 2;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+.hot-icon {
+  font-size: 0.9rem;
 }
 
-@media (max-width: 600px) {
-  .weather-headline {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-  }
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  text-decoration: none;
+  padding: 2rem 1.5rem 1.5rem;
+  transition: background 0.3s ease;
+}
 
-  .weather-blurb {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
+.card-overlay:hover {
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+}
 
-  .weather-inner {
-    padding: 1rem;
-  }
+.card-content {
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.trending-card:hover .card-content {
+  transform: translateY(-4px);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.card-vibe {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+/* Categories Section */
+.categories-section {
+  background: white;
+  padding: 4rem 0;
+}
+
+.categories-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.category-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: white;
+  border: 2px solid #FFF5F0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 213, 194, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.category-card:hover::before {
+  left: 100%;
+}
+
+.category-card:hover {
+  border-color: #FFD5C2;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(200, 85, 61, 0.1);
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.category-content {
+  flex: 1;
+  text-align: left;
+}
+
+.category-content h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.category-content p {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.category-arrow {
+  font-size: 1.2rem;
+  color: #C8553D;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-arrow {
+  transform: translateX(4px);
+}
+
+.explore-more {
+  text-align: center;
+}
+
+.explore-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #C8553D;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #FFD5C2;
+  border-radius: 999px;
+  transition: all 0.3s ease;
+}
+
+.explore-link:hover {
+  background: #FFD5C2;
+  transform: translateY(-2px);
+}
+
+.explore-arrow {
+  transition: transform 0.3s ease;
+}
+
+.explore-link:hover .explore-arrow {
+  transform: translateX(4px);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-8px); }
+  60% { transform: translateY(-4px); }
 }
 
 .fade-in {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
@@ -597,67 +892,93 @@ export default {
   transform: translateY(0);
 }
 
-.budget-group {
-  margin-bottom: 3rem;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 1.5rem;
+  }
+
+  .hero-description {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .primary-cta {
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+  }
+
+  .weather-container,
+  .trending-container,
+  .categories-container {
+    padding: 0 1.5rem;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .category-card {
+    padding: 1.25rem;
+  }
+
+  .budget-group {
+    padding: 1.5rem;
+  }
+
+  .trending-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .budget-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
 }
 
-.budget-label {
-  font-size: 1.4rem;
-  font-weight: bold;
-  margin: 1.5rem 0 1rem;
-  color: #f28f3b;
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 500px;
+  }
+
+  .category-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .category-content {
+    text-align: center;
+  }
+
+  .trending-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.trending-grid {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .bg-video,
+  .fade-in,
+  .primary-cta,
+  .category-card,
+  .trending-card {
+    transition: none;
+  }
+  
+  .hero-badge,
+  .scroll-dot {
+    animation: none;
+  }
 }
 
-.trending-card {
-  flex: 0 0 auto;
-  width: 250px;
-  height: 160px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-  transition: transform 0.3s ease;
+/* Focus states for keyboard navigation */
+.primary-cta:focus,
+.category-card:focus,
+.explore-link:focus {
+  outline: 3px solid #FFD5C2;
+  outline-offset: 2px;
 }
-
-.trending-card:hover {
-  transform: translateY(-4px) scale(1.02);
-}
-
-:deep(.hot-badge) {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background-color: #ff6b6b;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.65rem;
-  font-weight: bold;
-  border-radius: 999px;
-  z-index: 2;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-
-
-.overlay {
-  position: absolute;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  width: 100%;
-  text-align: center;
-  padding: 0.5rem;
-  font-weight: bold;
-  text-decoration: none;
-}
-
 </style>
