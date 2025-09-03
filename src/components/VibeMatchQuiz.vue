@@ -102,15 +102,15 @@ export default {
       budgetStep: 3, // multi-select step index (as in your original)
       questions: [
         {
-          question: "Who are you with?",
+          question: "Who are you with? Choose one.",
           options: ["Solo", "Date Night", "Family", "Friends", "First Date", "Second Date", "Group Outing", "Tourist", "Locals", "Late Night"]
         },
         {
-          question: "What's your vibe today?",
+          question: "What's your vibe today? Choose many.",
           options: ["Foodie", "Chill", "Adventurous", "Romantic", "Arts & Culture", "Trendy", "Artsy", "Nature", "Historic", "Luxury", "Quirky", "Quiet", "Sporty", "Cultural", "Hidden Gem", "Social", "Active"]
         },
         {
-          question: "What's your budget?",
+          question: "What's your budget? Choose many.",
           options: ["$", "$$", "$$$", "$-$$", "$$-$$$"]
         }
       ]
@@ -440,78 +440,88 @@ export default {
   .actions { justify-content: stretch; }
   .btn, .btn-accent { flex: 1; text-align: center; }
 }
-/* ===== Mobile polish for VibeMatch Quiz (single consolidated block) ===== */
-@media (max-width: 640px) {
-  /* overall breathing */
-  .quiz-section {
-    padding: 1.1rem .9rem 1.4rem;
-    gap: .5rem; /* less gap between header & card */
-  }
-
-  /* centered header + progress */
-  .quiz-header {
-    gap: .4rem;
-    margin-bottom: 0;         /* tighter */
-    align-items: center;
-    text-align: center;
-  }
-  .title { font-size: clamp(1.6rem, 6vw, 2.2rem); }
-  .subtitle { font-size: .95rem; margin-top: .1rem; }
-
-  .progress-wrap {
-    width: 100%;
-    justify-items: center;     /* center the text + dots */
-  }
-  .progress-text { font-size: .85rem; }
-  .progress-dots { justify-content: center; gap: .32rem; }
-  .dot { width: 9px; height: 9px; }
-
-  /* card */
-  .quiz-card {
-    align-self: start;
-    padding: .9rem;
-    margin-top: 0;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.06);
-  }
-
-  /* step title and spacing */
-  .step { gap: .75rem; }
-  .step-title {
-    font-size: 1.15rem;
-    margin: .15rem 0 .5rem;
-  }
-
-  /* location input row */
-  .location-input-wrap { gap: .5rem; }
-  .location-input { padding: .7rem .9rem; }
-  .location-step .btn { padding: .7rem 1rem; }
-  .autocomplete-list { margin-top: .35rem; }
-
-  /* options grid & chips */
-  .options-wrap {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2-up on phones */
+/* ===== Mobile polish for VibeMatch Quiz ===== */
+/* --- Mobile polish (iPhone widths, < 430px) --- */
+@media (max-width: 430px) {
+  /* 1) Tighter top area */
+  .quiz-section{
+    padding: 1rem .9rem calc(1.25rem + env(safe-area-inset-bottom));
     gap: .5rem;
   }
-  .chip {
-    padding: .6rem .7rem;
+
+  /* 2) Center & shrink headline block */
+  .quiz-header{
+    align-items: center;
+    text-align: center;
+    gap: .35rem;
+    margin-bottom: .25rem;
+  }
+  .title{
+    font-size: clamp(1.7rem, 6.2vw, 2.2rem);
+    line-height: 1.05;
+  }
+  .subtitle{
     font-size: .95rem;
+    max-width: 30ch;        /* stop super-wide lines */
+    margin-inline: auto;
   }
 
-  /* actions row */
-  .actions {
+  /* 3) Progress directly under subtitle, centered */
+  .progress-wrap{
+    width: 100%;
+    justify-items: center;
+  }
+  .progress-text{ font-size: .85rem; }
+  .progress-dots{ gap: .3rem; }
+  .dot{ width: 9px; height: 9px; }
+
+  /* 4) Card sits higher & is slightly narrower for thumb reach */
+  .quiz-card{
+    margin-top: .15rem;
+    padding: .95rem;
+    border-radius: 16px;
+    max-width: 640px;       /* allows breathing on phablets */
+  }
+
+  /* 5) Step title & spacing */
+  .step{ gap: .7rem; }
+  .step-title{
+    font-size: 1.15rem;
+    margin: .15rem 0 .45rem;
+  }
+
+  /* 6) Location row: compact input + button */
+  .location-input-wrap{ gap: .5rem; }
+  .location-input{ padding: .7rem .9rem; font-size: 1rem; }
+  .location-step .btn{ padding: .7rem 1rem; }
+  .autocomplete-list{ margin-top: .35rem; }
+
+  /* 7) Options grid: two-up on phones, smaller chips */
+  .options-wrap{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+  }
+  .chip{
+    padding: .6rem .7rem;
+    font-size: .96rem;
+  }
+
+  /* 8) Actions: full-width buttons, comfy hit targets */
+  .actions{
     margin-top: .35rem;
     gap: .5rem;
     justify-content: stretch;
   }
-  .btn, .btn-accent { flex: 1; text-align: center; }
+  .btn, .btn-accent{
+    flex: 1;
+    padding: .8rem 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
 }
 
-/* ultra-small phones: allow input row to wrap so the button doesn’t squish */
-@media (max-width: 380px) {
-  .location-input-wrap { flex-wrap: wrap; }
-  .location-step .btn { width: 100%; }
+/* Prevent the floating menu button from overlapping card header on small screens */
+@media (max-width: 430px){
+  .quiz-card{ scroll-margin-top: 72px; }
 }
-
-
 </style>
