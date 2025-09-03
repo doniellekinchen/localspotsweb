@@ -110,7 +110,7 @@ export default {
           options: ["Foodie", "Chill", "Adventurous", "Romantic", "Arts & Culture", "Trendy", "Artsy", "Nature", "Historic", "Luxury", "Quirky", "Quiet", "Sporty", "Cultural", "Hidden Gem", "Social", "Active"]
         },
         {
-          question: "What's your budget? Choose many.",
+          question: "What's your budget? Choose many",
           options: ["$", "$$", "$$$", "$-$$", "$$-$$$"]
         }
       ]
@@ -524,5 +524,4 @@ export default {
 @media (max-width: 430px){
   .quiz-card{ scroll-margin-top: 72px; }
 }
-
 </style>

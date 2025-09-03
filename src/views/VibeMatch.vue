@@ -14,11 +14,11 @@ export default {
   }
 }
 </script>
-
+<!-- 
 <style scoped>
 .vibematch-page {
   padding: 2rem;
   max-width: 500px;
   margin: auto;
 }
-</style>
+</style> -->
